@@ -3,9 +3,10 @@ import pygame
 
 
 class Player:
-    def __init__(self, x=350, y=350):
+    def __init__(self, screen, x=350, y=350):
         self.x, self.y = x, y
         self.angle = 0
+        self.screen = screen
 
     def display(self, screen):  # отображение игрока
         pygame.draw.circle(screen, ((145, 230, 145)), (self.x, self.y), 8)
@@ -83,3 +84,25 @@ class Player:
             if i[1] * 70 - 8 <= x <= i[1] * 70 + 78 and i[0] * 70 - 8 <= y <= i[0] * 70 + 78:
                 return False
         return True
+
+
+def verification_of_correctness(walls, x, y):
+    for i in walls:
+        if i[1] * 70 <= x <= i[1] * 70 + 70 and i[0] * 70 <= y <= i[0] * 70 + 70:
+            return False
+    return True
+
+
+def vision(screen, angle, x_pl, y_pl, mass):
+    fov = pi / 3
+    angle_2 = angle - fov / 2
+    for _ in range(70):
+        cos_ = cos(angle_2)
+        sin_ = sin(angle_2)
+        for j in range(580):
+            x = x_pl + j * cos_
+            y = y_pl + j * sin_
+            pygame.draw.line(screen, (200, 200, 200), (x_pl, y_pl), (x, y), 1)
+            if not verification_of_correctness(mass, x, y):
+                break
+        angle_2 += fov / 80
