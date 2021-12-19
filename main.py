@@ -1,9 +1,9 @@
-from player import Player, vision
+from player import Player, vision_3d
 from field import Field
 import pygame
 
 clock = pygame.time.Clock()
-size = width, height = 700, 700
+size = width, height = 1150, 700
 screen = pygame.display.set_mode(size)
 
 player = Player(screen, x=220, y=200)
@@ -18,8 +18,6 @@ while running:
     player.motion(field.mass)
 
     screen.fill((0, 0, 0))
-    field.visualization(screen)
-    player.display(screen)
-    vision(screen, player.angle, player.x, player.y, field.mass)
+    vision_3d(screen, player.angle, player.x, player.y, field.mass)
     pygame.display.flip()
-    clock.tick(25)
+    clock.tick(60)
