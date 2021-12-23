@@ -1,23 +1,32 @@
-from player import Player, vision_3d
-from field import Field
+from player import Player, vision
+from field import *
+from random import choice
 import pygame
 
+pygame.init()
 clock = pygame.time.Clock()
-size = width, height = 1150, 700
+size = width, height = 1200, 800
 screen = pygame.display.set_mode(size)
 
-player = Player(screen, x=220, y=200)
-field = Field()
-field.field_generation()
+player = Player(screen)
 running = True
+textures = {
+    '1': pygame.image.load('Texture/wall.jpg').convert(),
+    '2': pygame.image.load('Texture/wall_.jpg').convert()
+}
+
+sky_ = choice([i for i in range(1, 9)])
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    player.motion(field.mass)
+    player.motion(mass)
 
     screen.fill((0, 0, 0))
-    vision_3d(screen, player.angle, player.x, player.y, field.mass)
+    sky = pygame.image.load(f'Sky/{sky_}.png').convert()
+    screen.blit(sky, (0, 0))
+    pygame.draw.rect(screen, (34, 139, 34), (0, 350, 1200, 600))
+    vision(screen, player.x, player.y, player.angle, textures)
     pygame.display.flip()
     clock.tick(60)
