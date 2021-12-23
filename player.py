@@ -1,5 +1,6 @@
 from math import sin, cos, pi, tan
 from field import *
+from sys import exit
 
 import pygame
 
@@ -8,10 +9,14 @@ DIST = 300 / (2 * tan((pi / 3) / 2))
 
 
 class Player:
-    def __init__(self, screen, x=200, y=650):
+    def __init__(self, screen, x=150, y=150, mouse=False, sens=0.005, mouse_vision=False):
+        pygame.mouse.set_visible(mouse_vision)
+
         self.x, self.y = x, y
         self.angle = 0
         self.screen = screen
+        self.mouse = mouse
+        self.sens = sens
 
     def display(self, screen):  # отображение игрока
         pygame.draw.circle(screen, ((145, 230, 145)), (self.x, self.y), 8)
@@ -19,6 +24,15 @@ class Player:
                                                                         self.y + 900 * sin(self.angle)))
 
     def motion(self, walls):  # движение игрока
+        if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+            exit()
+        if self.mouse:
+            pygame.mouse.get_pos()
+            difference = pygame.mouse.get_pos()[0] - 600
+            pygame.mouse.set_pos((600, 400))
+            self.angle += difference * self.sens
+
+
         if pygame.key.get_pressed()[pygame.K_LEFT]:  # влево от луча
             x = self.x + 6 * cos(self.angle - pi / 2)
             y = self.y + 6 * sin(self.angle - pi / 2)
@@ -112,11 +126,16 @@ def mapping(a, b):
     return (a // 100) * 100, (b // 100) * 100
 
 
+wall_column = 0
+
+
 def vision(sc, x_pl, y_pl, player_angle, textures):
+    global wall_column
     fov = pi / 3
     ox, oy = x_pl, y_pl
     xm, ym = mapping(ox, oy)
     cur_angle = player_angle - fov / 2
+    texture_v, texture_h = 1, 1
     for ray in range(300):
         sin_a = sin(cur_angle)
         cos_a = cos(cur_angle)
@@ -124,7 +143,7 @@ def vision(sc, x_pl, y_pl, player_angle, textures):
         cos_a = cos_a if cos_a else 0.000001
 
         x, dx = (xm + 100, 1) if cos_a >= 0 else (xm, -1)
-        for i in range(0, 1200, 100):
+        for i in range(0, 2500, 100):
             depth_v = (x - ox) / cos_a
             yv = oy + depth_v * sin_a
             tile_v = mapping(x + dx, yv)
@@ -147,11 +166,14 @@ def vision(sc, x_pl, y_pl, player_angle, textures):
         offset = int(offset) % 100
         depth *= cos(player_angle - cur_angle)
         depth = max(depth, 0.00001)
-        proj_height = min(int((3 * DIST * 100) / depth), 2 * 800)
+        proj_height = min(int((3 * DIST * 100) / depth), 5 * 800)
 
-        wall_column = textures[texture].subsurface(offset * (1200 // 100), 0, 1200 // 100, 1200)
-        wall_column = pygame.transform.scale(wall_column, (1200 // 300, proj_height))
-        sc.blit(wall_column, (ray * (1200 // 300), 400 - proj_height // 2))
+        try:
+            wall_column = textures[texture].subsurface(offset * (1200 // 100), 0, 1200 // 100, 1200)
+            wall_column = pygame.transform.scale(wall_column, (1200 // 300, proj_height))
+            sc.blit(wall_column, (ray * (1200 // 300), 400 - proj_height // 2))
+        except Exception:
+            pass
+
 
         cur_angle += fov / 300
-
