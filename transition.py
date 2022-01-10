@@ -1,7 +1,7 @@
-from field import field_, dist
+from field import dist
 
 
-def transition(x_player, y_player):
+def transition(x_player, y_player, field_):
     for i in field_:
         if field_[i] == "2":
             if dist(x_player, y_player, i[0], i[1]) < 80:

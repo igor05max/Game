@@ -51,9 +51,7 @@ def field_constructor():
     tt = 0
     while (x, y) != (x_exit, y_exit - 1):
         tt += 1
-        if tt > 10:
-            pprint(field)
-            print("\n", x_exit, y_exit, "\n")
+        if tt > 400:
             field = [
                 [1 for _ in range(15)],
                 [2, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
@@ -131,7 +129,7 @@ FIELD = [
     [1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
     [1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1],
     [1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
-    [1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 3],
+    [1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 2],
     [1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1],
     [1 for _ in range(25)]
 ]
@@ -153,8 +151,34 @@ for i, elem in enumerate(field):
             mass.append((i * 100, j * 100))
 
 
+HALL_4 = field_constructor()
 
-#
+
+def hall_4_(hod=True):
+    global field_, mass, field
+    field = HALL_4
+    field_ = {}
+    for i, elem in enumerate(field):
+        for j, el in enumerate(elem):
+            if el != '.':
+                if el == 1:
+                    field_[(i * 100, j * 100)] = '1'
+                elif el == 2:
+                    field_[(i * 100, j * 100)] = '2'
+                elif el == 3:
+                    field_[(i * 100, j * 100)] = '3'
+                elif el == 4:
+                    field_[(i * 100, j * 100)] = '4'
+    mass = []
+    for i, elem in enumerate(field):
+        for j, el in enumerate(elem):
+            if el in (1, 2, 4) and hod:
+                mass.append((i * 100, j * 100))
+            elif el in (1, 2):
+                mass.append((i * 100, j * 100))
+    return field_, mass
+
+
 # FIELD_2 = [
 #         [1 for _ in range(25)],
 #         [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1],
