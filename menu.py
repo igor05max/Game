@@ -1,5 +1,6 @@
 import pygame
 import sys
+import sqlite3
 
 pygame.init()
 
@@ -8,6 +9,8 @@ class Menu:
     def __init__(self, screen, music):
         self.screen = screen
         self.active = True
+
+        self.id_ = 1
 
         self.music = music
 
@@ -45,16 +48,13 @@ class Menu:
         self.mouse = False
         self.mouse_vision = True
         self.keyboard = True
+        self.active_2 = True
 
         self.color_batten_achievement = (200, 0, 0)
 
     def actions(self, event):
         if self.active:
             if not self.visualization_rules and not self.visualization_settings:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        # self.active = False
-                        pass
                 if event.type == pygame.MOUSEMOTION:
                     if 1000 <= event.pos[0] <= 1170 and 680 <= event.pos[1] <= 760:
                         self.color_batten_exit = (80, 180, 80)
@@ -78,6 +78,7 @@ class Menu:
                         self.batten_play = False
                 if event.type == pygame.MOUSEBUTTONDOWN and self.batten_play:
                     self.active = False
+                    self.active_2 = False
 
                 if event.type == pygame.MOUSEMOTION:
                     if 35 <= event.pos[0] <= 235 and 50 <= event.pos[1] <= 129:
@@ -122,6 +123,13 @@ class Menu:
                         self.settings_sens = 0.008
                     else:
                         self.settings_sens = 0.005
+                    con = sqlite3.connect("game_base.db")
+                    cur = con.cursor()
+                    cur.execute(f'''UPDATE settings
+                    SET sens = '{self.settings_sens}'
+                    WHERE id = {self.id_}''')
+                    con.commit()
+                    con.close()
 
                 if event.type == pygame.MOUSEMOTION:
                     if 180 <= event.pos[0] <= 330 and 620 <= event.pos[1] <= 680:
@@ -151,18 +159,73 @@ class Menu:
                     else:
                         self.settings_sound = 1
                     self.music.set_volume(self.settings_sound)
+                    con = sqlite3.connect("game_base.db")
+                    cur = con.cursor()
+                    cur.execute(f'''UPDATE settings
+                                        SET sound = '{self.settings_sound}'
+                                        WHERE id = {self.id_}''')
+                    con.commit()
+                    con.close()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if 730 <= event.pos[0] <= 950 and 195 <= event.pos[1] <= 240:
                         self.mouse = not self.mouse
+                        if self.mouse:
+                            con = sqlite3.connect("game_base.db")
+                            cur = con.cursor()
+                            cur.execute(f'''UPDATE settings
+                                            SET mouse = '1'
+                                            WHERE id = {self.id_}''')
+                            con.commit()
+                            con.close()
+                        else:
+                            con = sqlite3.connect("game_base.db")
+                            cur = con.cursor()
+                            cur.execute(f'''UPDATE settings
+                                            SET mouse = '0'
+                                            WHERE id = {self.id_}''')
+                            con.commit()
+                            con.close()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if 725 <= event.pos[0] <= 940 and 265 <= event.pos[1] <= 310:
                         self.mouse_vision = not self.mouse_vision
+                        if self.mouse_vision:
+                            con = sqlite3.connect("game_base.db")
+                            cur = con.cursor()
+                            cur.execute(f'''UPDATE settings
+                                            SET mouse_vision = '1'
+                                            WHERE id = {self.id_}''')
+                            con.commit()
+                            con.close()
+                        else:
+                            con = sqlite3.connect("game_base.db")
+                            cur = con.cursor()
+                            cur.execute(f'''UPDATE settings
+                                            SET mouse_vision = '0'
+                                            WHERE id = {self.id_}''')
+                            con.commit()
+                            con.close()
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if 700 <= event.pos[0] <= 955 and 455 <= event.pos[1] <= 500:
                         self.keyboard = not self.keyboard
+                        if self.keyboard:
+                            con = sqlite3.connect("game_base.db")
+                            cur = con.cursor()
+                            cur.execute(f'''UPDATE settings
+                                            SET keyboard = '1'
+                                            WHERE id = {self.id_}''')
+                            con.commit()
+                            con.close()
+                        else:
+                            con = sqlite3.connect("game_base.db")
+                            cur = con.cursor()
+                            cur.execute(f'''UPDATE settings
+                                            SET keyboard = '1'
+                                            WHERE id = {self.id_}''')
+                            con.commit()
+                            con.close()
 
     def visualization(self):
         if not self.visualization_rules and not self.visualization_settings:

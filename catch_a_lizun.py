@@ -76,3 +76,10 @@ def number():
 def set_caught_():
     global set_caught
     set_caught = set()
+
+
+def number_of_caught_new():
+    global number_of_caught, lizun_
+    number_of_caught = 0
+    lizun_ = 0
+    set_caught_()

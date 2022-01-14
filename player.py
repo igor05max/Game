@@ -20,6 +20,7 @@ class Player:
         self.screen = screen
         self.mouse = mouse
         self.sens = sens
+        self.active = True
 
     def display(self, screen):  # отображение игрока
         pygame.draw.circle(screen, ((145, 230, 145)), (self.x, self.y), 8)
@@ -30,114 +31,117 @@ class Player:
         self.x, self.y = x, y
 
     def motion(self):  # движение игрока
-        pygame.mouse.set_visible(self.mouse_vision)
-        if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-            exit()
-        if self.mouse:
-            pygame.mouse.get_pos()
-            difference = pygame.mouse.get_pos()[0] - 600
-            pygame.mouse.set_pos((600, 400))
-            self.angle += difference * self.sens
-        if self.keyboard:
-            if pygame.key.get_pressed()[pygame.K_LEFT]:  # влево от луча
-                x = self.x + 4 * cos(self.angle - pi / 2)
-                y = self.y + 4 * sin(self.angle - pi / 2)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 40 * cos(self.angle - pi / 2)) // 100 * 100,
-                         (y + 40 * sin(self.angle - pi / 2)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
+        if self.active:
+            pygame.mouse.set_visible(self.mouse_vision)
+            if self.mouse:
+                pygame.mouse.get_pos()
+                difference = pygame.mouse.get_pos()[0] - 600
+                pygame.mouse.set_pos((600, 400))
+                self.angle += difference * self.sens
+            if self.keyboard:
+                if pygame.key.get_pressed()[pygame.K_LEFT]:  # влево от луча
+                    x = self.x + 4 * cos(self.angle - pi / 2)
+                    y = self.y + 4 * sin(self.angle - pi / 2)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 40 * cos(self.angle - pi / 2)) // 100 * 100,
+                             (y + 40 * sin(self.angle - pi / 2)) // 100 * 100) not in self.mass:
+                        self.x = x
+                        self.y = y
 
-            if pygame.key.get_pressed()[pygame.K_RIGHT]:  # вправо от луча
-                x = self.x + 4 * cos(self.angle + pi / 2)
-                y = self.y + 4 * sin(self.angle + pi / 2)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 40 * cos(self.angle + pi / 2)) // 100 * 100,
-                         (y + 40 * sin(self.angle + pi / 2)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
+                if pygame.key.get_pressed()[pygame.K_RIGHT]:  # вправо от луча
+                    x = self.x + 4 * cos(self.angle + pi / 2)
+                    y = self.y + 4 * sin(self.angle + pi / 2)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 40 * cos(self.angle + pi / 2)) // 100 * 100,
+                             (y + 40 * sin(self.angle + pi / 2)) // 100 * 100) not in self.mass:
+                        self.x = x
+                        self.y = y
 
-            if pygame.key.get_pressed()[pygame.K_UP] or pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
-                x = self.x + 4 * cos(self.angle)
-                y = self.y + 4 * sin(self.angle)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 40 * cos(self.angle)) // 100 * 100, (y + 40 * sin(self.angle)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
+                if pygame.key.get_pressed()[pygame.K_UP] or pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
+                    x = self.x + 4 * cos(self.angle)
+                    y = self.y + 4 * sin(self.angle)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 40 * cos(self.angle)) // 100 * 100, (y + 40 * sin(self.angle)) // 100 * 100) \
+                            not in self.mass:
+                        self.x = x
+                        self.y = y
 
-            if pygame.key.get_pressed()[pygame.K_UP] and pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
-                x = self.x + 5 * cos(self.angle)
-                y = self.y + 5 * sin(self.angle)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 50 * cos(self.angle)) // 100 * 100, (y + 50 * sin(self.angle)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
+                if pygame.key.get_pressed()[pygame.K_UP] and pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
+                    x = self.x + 5 * cos(self.angle)
+                    y = self.y + 5 * sin(self.angle)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 50 * cos(self.angle)) // 100 * 100, (y + 50 * sin(self.angle)) // 100 * 100) \
+                            not in self.mass:
+                        self.x = x
+                        self.y = y
 
-            if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.key.get_pressed()[pygame.K_s]:  # назад от луча
-                x = self.x + 4 * cos(self.angle + pi)
-                y = self.y + 4 * sin(self.angle + pi)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 40 * cos(self.angle + pi)) // 100 * 100,
-                         (y + 40 * sin(self.angle + pi)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
+                if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.key.get_pressed()[pygame.K_s]:  # назад от луча
+                    x = self.x + 4 * cos(self.angle + pi)
+                    y = self.y + 4 * sin(self.angle + pi)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 40 * cos(self.angle + pi)) // 100 * 100,
+                             (y + 40 * sin(self.angle + pi)) // 100 * 100) not in self.mass:
+                        self.x = x
+                        self.y = y
 
-            if pygame.key.get_pressed()[pygame.K_a]:
-                self.angle -= 0.05
-            if pygame.key.get_pressed()[pygame.K_d]:
-                self.angle += 0.05
+                if pygame.key.get_pressed()[pygame.K_a]:
+                    self.angle -= 0.05
+                if pygame.key.get_pressed()[pygame.K_d]:
+                    self.angle += 0.05
+            else:
+                if pygame.key.get_pressed()[pygame.K_a]:  # влево от луча
+                    x = self.x + 4 * cos(self.angle - pi / 2)
+                    y = self.y + 4 * sin(self.angle - pi / 2)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 40 * cos(self.angle - pi / 2)) // 100 * 100,
+                             (y + 40 * sin(self.angle - pi / 2)) // 100 * 100) not in self.mass:
+                        self.x = x
+                        self.y = y
+
+                if pygame.key.get_pressed()[pygame.K_d]:  # вправо от луча
+                    x = self.x + 4 * cos(self.angle + pi / 2)
+                    y = self.y + 4 * sin(self.angle + pi / 2)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 40 * cos(self.angle + pi / 2)) // 100 * 100,
+                             (y + 40 * sin(self.angle + pi / 2)) // 100 * 100) not in self.mass:
+                        self.x = x
+                        self.y = y
+
+                if pygame.key.get_pressed()[pygame.K_UP] or pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
+                    x = self.x + 4 * cos(self.angle)
+                    y = self.y + 4 * sin(self.angle)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 40 * cos(self.angle)) // 100 * 100,
+                             (y + 40 * sin(self.angle)) // 100 * 100) not in self.mass:
+                        self.x = x
+                        self.y = y
+
+                if pygame.key.get_pressed()[pygame.K_UP] and pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
+                    x = self.x + 5 * cos(self.angle)
+                    y = self.y + 5 * sin(self.angle)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 50 * cos(self.angle)) // 100 * 100,
+                             (y + 50 * sin(self.angle)) // 100 * 100) not in self.mass:
+                        self.x = x
+                        self.y = y
+
+                if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.key.get_pressed()[pygame.K_s]:  # назад от луча
+                    x = self.x + 4 * cos(self.angle + pi)
+                    y = self.y + 4 * sin(self.angle + pi)
+                    if (x // 100 * 100, y // 100 * 100) not in self.mass and \
+                            ((x + 40 * cos(self.angle + pi)) // 100 * 100,
+                             (y + 40 * sin(self.angle + pi)) // 100 * 100) not in self.mass:
+                        self.x = x
+                        self.y = y
+
+                if pygame.key.get_pressed()[pygame.K_LEFT]:
+                    self.angle -= 0.05
+                if pygame.key.get_pressed()[pygame.K_RIGHT]:
+                    self.angle += 0.05
+
+            self.angle %= pi * 2
         else:
-            if pygame.key.get_pressed()[pygame.K_a]:  # влево от луча
-                x = self.x + 4 * cos(self.angle - pi / 2)
-                y = self.y + 4 * sin(self.angle - pi / 2)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 40 * cos(self.angle - pi / 2)) // 100 * 100,
-                         (y + 40 * sin(self.angle - pi / 2)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
-
-            if pygame.key.get_pressed()[pygame.K_d]:  # вправо от луча
-                x = self.x + 4 * cos(self.angle + pi / 2)
-                y = self.y + 4 * sin(self.angle + pi / 2)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 40 * cos(self.angle + pi / 2)) // 100 * 100,
-                         (y + 40 * sin(self.angle + pi / 2)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
-
-            if pygame.key.get_pressed()[pygame.K_UP] or pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
-                x = self.x + 4 * cos(self.angle)
-                y = self.y + 4 * sin(self.angle)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 40 * cos(self.angle)) // 100 * 100,
-                         (y + 40 * sin(self.angle)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
-
-            if pygame.key.get_pressed()[pygame.K_UP] and pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
-                x = self.x + 5 * cos(self.angle)
-                y = self.y + 5 * sin(self.angle)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 50 * cos(self.angle)) // 100 * 100,
-                         (y + 50 * sin(self.angle)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
-
-            if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.key.get_pressed()[pygame.K_s]:  # назад от луча
-                x = self.x + 4 * cos(self.angle + pi)
-                y = self.y + 4 * sin(self.angle + pi)
-                if (x // 100 * 100, y // 100 * 100) not in self.mass and \
-                        ((x + 40 * cos(self.angle + pi)) // 100 * 100,
-                         (y + 40 * sin(self.angle + pi)) // 100 * 100) not in self.mass:
-                    self.x = x
-                    self.y = y
-
-            if pygame.key.get_pressed()[pygame.K_LEFT]:
-                self.angle -= 0.05
-            if pygame.key.get_pressed()[pygame.K_RIGHT]:
-                self.angle += 0.05
-
-        self.angle %= pi * 2
+            pygame.mouse.set_visible(True)
 
     def checking_the_progress(self, x, y):
         pass

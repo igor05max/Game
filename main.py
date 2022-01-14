@@ -2,12 +2,13 @@ from player import Player, vision_new, world
 from sprite import Sprites, SpriteObject
 from sprite_movements import movements, sprite_movements
 from menu import Menu
-# from land import land
 from field import hall_4_, mass, field_
-from transition import transition
-from catch_a_lizun import catch_a_lizun, ball, lizun, number, set_caught_
+from transition import transition, transition_4
+from catch_a_lizun import catch_a_lizun, ball, lizun, number, set_caught_, number_of_caught_new
 from random import choice
+import sqlite3
 import pygame
+import pygame_gui
 import sys
 
 
@@ -25,9 +26,7 @@ t = False
 
 music_menu = pygame.mixer.Sound('Music/music.ogg')
 music_menu.play(-1)
-
-clock_ = pygame.time.Clock()
-
+# music_menu.stop()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -51,9 +50,209 @@ while running:
 
     pygame.display.flip()
     clock.tick(60)
+con = sqlite3.connect("game_base.db")
+cur = con.cursor()
+
+manage = pygame_gui.UIManager((1200, 800))
+clock_ = pygame.time.Clock()
+
+exit_ = pygame_gui.elements.UIButton(
+    relative_rect=pygame.Rect((520, 620), (150, 50)),
+    text='Выход',
+    manager=manage
+)
+entrance = pygame_gui.elements.UIButton(
+    relative_rect=pygame.Rect((430, 400), (150, 50)),
+    text='Вход',
+    manager=manage
+)
+registration = pygame_gui.elements.UIButton(
+    relative_rect=pygame.Rect((600, 400), (150, 50)),
+    text='Регистрация',
+    manager=manage
+)
+password_ = pygame_gui.elements.UITextEntryLine(
+    relative_rect=pygame.Rect((380, 250), (440, 40)),
+    manager=manage
+)
+login_ = pygame_gui.elements.UITextEntryLine(
+    relative_rect=pygame.Rect((380, 150), (440, 40)),
+    manager=manage
+)
+
+font = pygame.font.Font(None, 40)
+text = font.render("Пароль: ", True, (200, 200, 200))
+font = pygame.font.Font(None, 40)
+login = font.render("Логин: ", True, (200, 200, 200))
+
+font = pygame.font.Font(None, 40)
+error_ = font.render("Неверный логин или пароль", True, (220, 20, 20))
+
+running_ = True
+running_registration = False
+password_entrance = ""
+login_entrance = ""
+er = False
+
+while running_:
+    time_delta = clock_.tick(60) / 1000.0
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+
+        if event.type == pygame.USEREVENT:
+            if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == exit_:
+                    sys.exit()
+                if event.ui_element == entrance:
+
+                    login_ps = cur.execute(f"""SELECT login FROM password
+                                               WHERE login = '{login_entrance}' 
+                                               AND password = '{password_entrance}'
+                    """).fetchall()
+                    if not login_ps:
+                        er = True
+                    else:
+                        er = False
+                        login_ps = login_ps[0][0]
+                        running_ = False
+                if event.ui_element == registration:
+                    running_ = False
+                    running_registration = True
+            if event.user_type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
+                if event.ui_element == password_:
+                    password_entrance = event.text
+                if event.ui_element == login_:
+                    login_entrance = event.text
+        manage.process_events(event)
+
+    manage.update(time_delta)
+    screen.fill((10, 10, 10))
+    screen.blit(text, (250, 255))
+    screen.blit(login, (250, 155))
+    if er:
+        screen.blit(error_, (50, 655))
+    manage.draw_ui(screen)
+    pygame.display.update()
+
+manage = pygame_gui.UIManager((1200, 800))
+exit_ = pygame_gui.elements.UIButton(
+    relative_rect=pygame.Rect((520, 620), (150, 50)),
+    text='Выход',
+    manager=manage
+)
+registration = pygame_gui.elements.UIButton(
+    relative_rect=pygame.Rect((400, 400), (370, 50)),
+    text='Регистрация',
+    manager=manage
+)
+password_ = pygame_gui.elements.UITextEntryLine(
+    relative_rect=pygame.Rect((380, 250), (440, 40)),
+    manager=manage
+)
+login_ = pygame_gui.elements.UITextEntryLine(
+    relative_rect=pygame.Rect((380, 150), (440, 40)),
+    manager=manage
+)
+font = pygame.font.Font(None, 40)
+text = font.render("Пароль: ", True, (200, 200, 200))
+font = pygame.font.Font(None, 40)
+login = font.render("Логин: ", True, (200, 200, 200))
+
+font = pygame.font.Font(None, 40)
+error_ = font.render("Этот логин уже существует", True, (220, 20, 20))
+
+font = pygame.font.Font(None, 40)
+error_2 = font.render("Дожно быть не менее 1 символа", True, (220, 20, 20))
+er = False
+er_2 = False
+while running_registration:
+    time_delta = clock_.tick(60) / 1000.0
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        if event.type == pygame.USEREVENT:
+            if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == exit_:
+                    sys.exit()
+                if event.ui_element == registration:
+                    if not login_entrance or not password_entrance:
+                        er_2 = True
+                        break
+                    er_2 = False
+                    login_ps = cur.execute(f"""SELECT login FROM password
+                                WHERE login = '{login_entrance}'
+                                        """).fetchall()
+                    if login_ps:
+                        er = True
+                    else:
+                        er = False
+                        login_ps = login_entrance
+                        cur.execute(f'''
+                        INSERT INTO password(password, login, count)
+                         VALUES('{password_entrance}', '{login_entrance}', '0')''')
+                        cur.execute(f'''
+                                    INSERT INTO settings(mouse, mouse_vision, sens, keyboard, sound)
+                                    VALUES('0', '1', '0.005', '1', '1.0')''')
+                        running_registration = False
+                        con.commit()
+
+            if event.user_type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
+                if event.ui_element == password_:
+                    password_entrance = event.text
+                if event.ui_element == login_:
+                    login_entrance = event.text
+
+        manage.process_events(event)
+
+    manage.update(time_delta)
+    screen.fill((10, 10, 10))
+    screen.blit(text, (250, 255))
+    screen.blit(login, (250, 155))
+    if er:
+        screen.blit(error_, (50, 655))
+    if er_2:
+        screen.blit(error_2, (50, 655))
+    manage.draw_ui(screen)
+    pygame.display.update()
+
+
+result = cur.execute(f"""SELECT mouse, mouse_vision, sens, keyboard, sound, settings.id
+                         FROM settings, password
+                         WHERE password.id = settings.id AND login = '{login_ps}'
+    """).fetchall()[0]
+con.close()
+
+menu = Menu(screen, music_menu)
+menu.active = False
+
+menu.mouse = int(result[0])
+menu.mouse_vision = int(result[1])
+menu.settings_sens = float(result[2])
+if menu.settings_sens == 0.001:
+    menu.mass_setting_sens_index = "Низкая"
+elif menu.settings_sens == 0.005:
+    menu.mass_setting_sens_index = "Средняя"
+else:
+    menu.mass_setting_sens_index = "Высокая"
+menu.keyboard = int(result[3])
+menu.settings_sound = float(result[4])
+if menu.settings_sound == 0:
+    menu.mass_setting_sound_index = "Нет"
+elif menu.settings_sound == 0.1:
+    menu.mass_setting_sound_index = "Низкая"
+elif menu.settings_sound == 0.5:
+    menu.mass_setting_sound_index = "Средняя"
+else:
+    menu.mass_setting_sound_index = "Высокая"
+
+menu.id_ = result[-1]
+menu.active = True
+
+
 
 # print(music_menu.get_volume())
-menu = Menu(screen, music_menu)
+
 
 player = Player(screen, mass=mass, mouse=True)
 sprite = Sprites()
@@ -85,6 +284,13 @@ sprite_true_2 = True
 sprite_true_3 = True
 hall_4 = False
 clearing_hall_4 = True
+color_batten_further = (125, 170, 200)
+batten_further_bool = False
+color_batten_menu = (125, 170, 200)
+batten_menu_bool = False
+color_batten_again = (125, 170, 200)
+batten_again_bool = False
+end = False
 
 while running:
     for event in pygame.event.get():
@@ -92,8 +298,70 @@ while running:
             running = False
         if event.type == MYEVENTTYPE:
             true = True
+        if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+            player.active = False
+            # menu.active = False
+        if event.type == pygame.MOUSEMOTION and not player.active and not menu.active:
+            if 535 <= event.pos[0] <= 755 and 250 <= event.pos[1] <= 330:
+                color_batten_further = (175, 220, 250)
+                batten_further_bool = True
+            else:
+                color_batten_further = (125, 170, 200)
+                batten_further_bool = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN and batten_further_bool:  # and not menu.active:
+            player.active = True
+
+        if event.type == pygame.MOUSEMOTION and not player.active and not menu.active:
+            if 535 <= event.pos[0] <= 755 and 350 <= event.pos[1] <= 430:
+                color_batten_menu = (175, 220, 250)
+                batten_menu_bool = True
+            else:
+                color_batten_menu = (125, 170, 200)
+                batten_menu_bool = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN and batten_menu_bool and not menu.active:
+            menu.active_2 = True
+            player.active = False
+
+        if event.type == pygame.MOUSEMOTION and not player.active and not menu.active:
+            if 535 <= event.pos[0] <= 755 and 450 <= event.pos[1] <= 530:
+                color_batten_again = (175, 220, 250)
+                batten_again_bool = True
+            else:
+                color_batten_again = (125, 170, 200)
+                batten_again_bool = False
+        if event.type == pygame.MOUSEBUTTONDOWN and batten_again_bool and not menu.active:
+            player.x, player.y = 150, 150
+            player.angle = 0
+            sprite = Sprites()
+            running = True
+            COLOR_ = (69, 71, 48)
+            MYEVENTTYPE = pygame.USEREVENT + 1
+            sprite_movements(8, 12, sprite)
+            sky_ = choice([i for i in range(1, 9)])
+            pygame.time.set_timer(MYEVENTTYPE, 1500)
+            true = False
+            number_sprite = 1
+            hall = 1
+            sprite_true = True
+            sprite_true_2 = True
+            sprite_true_3 = True
+            hall_4 = False
+            clearing_hall_4 = True
+            color_batten_further = (125, 170, 200)
+            batten_further_bool = False
+            color_batten_menu = (125, 170, 200)
+            batten_menu_bool = False
+            color_batten_again = (125, 170, 200)
+            batten_again_bool = False
+            number_of_caught_new()
 
         menu.actions(event)
+    if menu.active_2:
+        menu.active = True
+    else:
+        menu.active = False
     if menu.active:
         screen.fill((0, 0, 0))
         menu.visualization()
@@ -101,11 +369,14 @@ while running:
         player.mouse = menu.mouse
         player.mouse_vision = menu.mouse_vision
         player.keyboard = menu.keyboard
+        # player.active = False
         pygame.display.flip()
         clock.tick(60)
         continue
 
     else:
+        # player.active = True
+        menu_active = False
         music_menu.stop()
 
     player.motion()
@@ -181,6 +452,34 @@ while running:
             }
             field_, mass = hall_4_()
             player.mass = mass
+
+    if hall_4:
+        if transition_4(player.x, player.y, field_) == "2":
+            player.active = False
+            end = True
+
+    if not player.active and not end:
+        pygame.draw.rect(screen, color_batten_further,
+                         (535, 250, 220, 80), 0)
+
+        font = pygame.font.Font(None, 60)
+        text = font.render(f"Далее", True, (10, 10, 10))
+        screen.blit(text, (565, 270))
+
+        pygame.draw.rect(screen, color_batten_menu,
+                         (535, 350, 220, 80), 0)
+        font = pygame.font.Font(None, 60)
+        text = font.render(f"Меню", True, (10, 10, 10))
+        screen.blit(text, (575, 370))
+
+        pygame.draw.rect(screen, color_batten_again,
+                         (535, 450, 220, 80), 0)
+        font = pygame.font.Font(None, 60)
+        text = font.render(f"Заново", True, (10, 10, 10))
+        screen.blit(text, (575, 470))
+    if end:
+        sky = pygame.image.load(f'Texture/202.png').convert()
+        screen.blit(sky, (0, 0))
 
     pygame.display.flip()
     clock.tick(60)
