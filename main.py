@@ -4,7 +4,8 @@ from sprite_movements import movements, sprite_movements
 from menu import Menu
 from field import hall_4_, mass, field_
 from transition import transition, transition_4
-from catch_a_lizun import catch_a_lizun, ball, lizun, number, set_caught_, number_of_caught_new
+from catch_a_lizun import catch_a_lizun, ball, lizun, number, set_caught_, number_of_caught_new,\
+    time_to_destroy_the_lizun_
 from random import choice
 import sqlite3
 import pygame
@@ -93,13 +94,17 @@ running_registration = False
 password_entrance = ""
 login_entrance = ""
 er = False
-
+textur = "300"
+MYEVENTTYPE = pygame.USEREVENT + 1
+pygame.time.set_timer(MYEVENTTYPE, 1200)
+mass_texture = ["300", "301", "302"]
 while running_:
     time_delta = clock_.tick(60) / 1000.0
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-
+        if event.type == MYEVENTTYPE:
+            textur = f'30{(int(textur[-1]) + 1) % 3}'
         if event.type == pygame.USEREVENT:
             if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == exit_:
@@ -127,7 +132,8 @@ while running_:
         manage.process_events(event)
 
     manage.update(time_delta)
-    screen.fill((10, 10, 10))
+    k = pygame.image.load(f'Menu/{textur}.png').convert()
+    screen.blit(k, (0, 0))
     screen.blit(text, (250, 255))
     screen.blit(login, (250, 155))
     if er:
@@ -171,6 +177,8 @@ while running_registration:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
+        if event.type == MYEVENTTYPE:
+            textur = f'30{(int(textur[-1]) + 1) % 3}'
         if event.type == pygame.USEREVENT:
             if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == exit_:
@@ -206,7 +214,8 @@ while running_registration:
         manage.process_events(event)
 
     manage.update(time_delta)
-    screen.fill((10, 10, 10))
+    k = pygame.image.load(f'Menu/{textur}.png').convert()
+    screen.blit(k, (0, 0))
     screen.blit(text, (250, 255))
     screen.blit(login, (250, 155))
     if er:
@@ -249,11 +258,6 @@ else:
 menu.id_ = result[-1]
 menu.active = True
 
-
-
-# print(music_menu.get_volume())
-
-
 player = Player(screen, mass=mass, mouse=True)
 sprite = Sprites()
 running = True
@@ -292,15 +296,20 @@ color_batten_again = (125, 170, 200)
 batten_again_bool = False
 end = False
 
+time_to_destroy_the_lizun = False
+MYEVENTTYPE_2 = pygame.USEREVENT + 1
+pygame.time.set_timer(MYEVENTTYPE_2, 20500)
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == MYEVENTTYPE:
             true = True
+        if event.type == MYEVENTTYPE_2:
+            time_to_destroy_the_lizun = True
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             player.active = False
-            # menu.active = False
         if event.type == pygame.MOUSEMOTION and not player.active and not menu.active:
             if 535 <= event.pos[0] <= 755 and 250 <= event.pos[1] <= 330:
                 color_batten_further = (175, 220, 250)
@@ -456,7 +465,11 @@ while running:
     if hall_4:
         if transition_4(player.x, player.y, field_) == "2":
             player.active = False
-            end = True
+            if number() >= 1:
+                end = True
+        elif time_to_destroy_the_lizun:
+            time_to_destroy_the_lizun = False
+            time_to_destroy_the_lizun_()
 
     if not player.active and not end:
         pygame.draw.rect(screen, color_batten_further,

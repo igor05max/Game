@@ -42,6 +42,8 @@ def ball(screen, hall):
         x = x2 = 1
     if hall == 2:
         x2 = x = 4
+    if hall == 4:
+        x2 = 1
     font = pygame.font.Font(None, 100)
     text = font.render(f"/{x}", True, (50, 185, 50))
     text_number_of_caught = font.render(f"{number_of_caught}", True, (250, 100, 50))
@@ -83,3 +85,8 @@ def number_of_caught_new():
     number_of_caught = 0
     lizun_ = 0
     set_caught_()
+
+
+def time_to_destroy_the_lizun_():
+    global number_of_caught
+    number_of_caught = max(number_of_caught - 1, 0)
