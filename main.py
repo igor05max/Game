@@ -1,11 +1,10 @@
 from player import Player, vision_new, world
 from sprite import Sprites, SpriteObject
-from sprite_movements import movements, sprite_movements
+from time import perf_counter
 from menu import Menu
-from field import hall_4_, mass, field_
+from field import hall_4_, mass, field_, beginning
 from transition import transition, transition_4
-from catch_a_lizun import catch_a_lizun, ball, lizun, number, set_caught_, number_of_caught_new,\
-    time_to_destroy_the_lizun_
+from catch_a_lizun import *
 from random import choice
 import sqlite3
 import pygame
@@ -294,11 +293,23 @@ color_batten_menu = (125, 170, 200)
 batten_menu_bool = False
 color_batten_again = (125, 170, 200)
 batten_again_bool = False
+
 end = False
+color_batten_end = (125, 170, 200)
+batten_end_bool = False
 
 time_to_destroy_the_lizun = False
-MYEVENTTYPE_2 = pygame.USEREVENT + 1
-pygame.time.set_timer(MYEVENTTYPE_2, 20500)
+true_timer = False
+timer = 0
+start = 0
+
+metronome = pygame.mixer.Sound('Music/метроном.ogg')
+metronome.stop()
+
+sos = pygame.mixer.Sound('Music/сигнал.ogg')
+sos.stop()
+
+result_payer = True
 
 while running:
     for event in pygame.event.get():
@@ -306,8 +317,8 @@ while running:
             running = False
         if event.type == MYEVENTTYPE:
             true = True
-        if event.type == MYEVENTTYPE_2:
-            time_to_destroy_the_lizun = True
+
+            # time_to_destroy_the_lizun = True
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             player.active = False
         if event.type == pygame.MOUSEMOTION and not player.active and not menu.active:
@@ -342,6 +353,10 @@ while running:
                 batten_again_bool = False
         if event.type == pygame.MOUSEBUTTONDOWN and batten_again_bool and not menu.active:
             player.x, player.y = 150, 150
+            true_timer = False
+            timer = 0
+            start = 0
+            time_to_destroy_the_lizun = False
             player.angle = 0
             sprite = Sprites()
             running = True
@@ -365,8 +380,130 @@ while running:
             color_batten_again = (125, 170, 200)
             batten_again_bool = False
             number_of_caught_new()
+            field_, mass = beginning()
+            player.mass = mass
+            textures = {
+                '1': pygame.image.load('Texture/5.png').convert(),
+                '2': pygame.image.load('Texture/15.png').convert(),
+                '3': pygame.image.load('Texture/030.png').convert(),
+                '4': pygame.image.load('Texture/wall.jpg').convert()
+            }
+
+        if event.type == pygame.MOUSEMOTION and end:
+            if 940 <= event.pos[0] <= 1160 and 710 <= event.pos[1] <= 790:
+                color_batten_end = (175, 220, 250)
+                batten_end_bool = True
+            else:
+                color_batten_end = (125, 170, 200)
+                batten_end_bool = False
+        if event.type == pygame.MOUSEBUTTONDOWN and batten_end_bool:
+            con = sqlite3.connect("game_base.db")
+            cur = con.cursor()
+
+            result = cur.execute(f"""SELECT mouse, mouse_vision, sens, keyboard, sound, settings.id
+                                     FROM settings, password
+                                     WHERE password.id = settings.id AND login = '{login_ps}'
+                """).fetchall()[0]
+            con.close()
+
+            music_menu.play()
+
+            menu = Menu(screen, music_menu)
+            menu.active = False
+
+            menu.mouse = int(result[0])
+            menu.mouse_vision = int(result[1])
+            menu.settings_sens = float(result[2])
+            if menu.settings_sens == 0.001:
+                menu.mass_setting_sens_index = "Низкая"
+            elif menu.settings_sens == 0.005:
+                menu.mass_setting_sens_index = "Средняя"
+            else:
+                menu.mass_setting_sens_index = "Высокая"
+            menu.keyboard = int(result[3])
+            menu.settings_sound = float(result[4])
+            if menu.settings_sound == 0:
+                menu.mass_setting_sound_index = "Нет"
+            elif menu.settings_sound == 0.1:
+                menu.mass_setting_sound_index = "Низкая"
+            elif menu.settings_sound == 0.5:
+                menu.mass_setting_sound_index = "Средняя"
+            else:
+                menu.mass_setting_sound_index = "Высокая"
+
+            menu.id_ = result[-1]
+            menu.active = True
+
+            player = Player(screen, mass=mass, mouse=True)
+            sprite = Sprites()
+            running = True
+            textures = {
+                '1': pygame.image.load('Texture/5.png').convert(),
+                '2': pygame.image.load('Texture/15.png').convert(),
+                '3': pygame.image.load('Texture/030.png').convert(),
+                '4': pygame.image.load('Texture/wall.jpg').convert()
+            }
+            textures_ = {
+                '1': ['Texture/5.png', 'Texture/15.png'],
+                '2': ['Texture/4.png', 'Texture/14.png'],
+                '3': ['Texture/6.png', 'Texture/16.png'],
+                '4': ['Texture/5.png', 'Texture/15.png']
+            }
+
+            # COLOR_ = land(textures_["1"][0])
+            COLOR_ = (69, 71, 48)
+            MYEVENTTYPE = pygame.USEREVENT + 1
+            sprite_movements(8, 12, sprite)
+            sky_ = choice([i for i in range(1, 9)])
+            pygame.time.set_timer(MYEVENTTYPE, 1500)
+            true = False
+            number_sprite = 1
+            hall = 1
+            sprite_true = True
+            sprite_true_2 = True
+            sprite_true_3 = True
+            hall_4 = False
+            clearing_hall_4 = True
+            color_batten_further = (125, 170, 200)
+            batten_further_bool = False
+            color_batten_menu = (125, 170, 200)
+            batten_menu_bool = False
+            color_batten_again = (125, 170, 200)
+            batten_again_bool = False
+
+            end = False
+            color_batten_end = (125, 170, 200)
+            batten_end_bool = False
+
+            time_to_destroy_the_lizun = False
+            true_timer = False
+            timer = 0
+            start = 0
+
+            metronome = pygame.mixer.Sound('Music/метроном.ogg')
+            metronome.stop()
+
+            sos = pygame.mixer.Sound('Music/сигнал.ogg')
+            sos.stop()
+
+            result_payer = True
+            field_, player.mass = beginning()
 
         menu.actions(event)
+
+    if true_timer:
+        true_timer = False
+        start = perf_counter()
+
+    if timer == 0:
+        if start != 0:
+            end_time = perf_counter()
+            if round(end_time - start) % 31 == 28:
+                sos.play()
+            if round(end_time - start) % 31 == 30:
+                time_to_destroy_the_lizun = True
+                start = perf_counter()
+
     if menu.active_2:
         menu.active = True
     else:
@@ -378,7 +515,6 @@ while running:
         player.mouse = menu.mouse
         player.mouse_vision = menu.mouse_vision
         player.keyboard = menu.keyboard
-        # player.active = False
         pygame.display.flip()
         clock.tick(60)
         continue
@@ -452,6 +588,7 @@ while running:
     if hall_4:
         if clearing_hall_4:
             clearing_hall_4 = False
+            true_timer = True
             set_caught_()
             sprite.list_of_objects = [
                 SpriteObject(sprite.sprite_types['s'], True, (30.5, 30.5), 0.0, 0.0)
@@ -461,6 +598,7 @@ while running:
             }
             field_, mass = hall_4_()
             player.mass = mass
+            metronome.play(-1)
 
     if hall_4:
         if transition_4(player.x, player.y, field_) == "2":
@@ -491,8 +629,40 @@ while running:
         text = font.render(f"Заново", True, (10, 10, 10))
         screen.blit(text, (575, 470))
     if end:
-        sky = pygame.image.load(f'Texture/202.png').convert()
+        if result_payer:
+            result_payer = False
+            con = sqlite3.connect("game_base.db")
+            cur = con.cursor()
+            res = cur.execute(f''' 
+                                SELECT count FROM password
+                                WHERE login = '{login_ps}'
+                                            ''').fetchall()[0][0]
+
+            if int(res) < int(number_of_caught):
+                cur.execute(f"""UPDATE password
+                                SET count = '{number_of_caught}'
+                                WHERE login = '{login_ps}'""")
+                con.commit()
+            con.close()
+
+        player.music_schag.stop()
+        sky = pygame.image.load(f'Texture/205.png').convert()
         screen.blit(sky, (0, 0))
+        metronome.stop()
+        timer = 0
+        start = 0
+        pygame.draw.rect(screen, color_batten_end,
+                         (940, 710, 220, 80), 0)
+
+        font = pygame.font.Font(None, 60)
+        text = font.render(f"Далее", True, (10, 10, 10))
+        screen.blit(text, (955, 720))
+        # menu.active_2 = True
+        # player.active = False
+
+        font = pygame.font.Font(None, 100)
+        text = font.render(f"{number_of_caught}", True, (230, 230, 10))
+        screen.blit(text, (535, 735))
 
     pygame.display.flip()
     clock.tick(60)

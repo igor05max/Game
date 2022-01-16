@@ -54,7 +54,7 @@ def field_constructor():
         if tt > 400:
             field = [
                 [1 for _ in range(15)],
-                [2, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
                 [1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1],
                 [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
                 [1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1],
@@ -84,15 +84,31 @@ def field_constructor():
         field[x][y] = 9
         true = False if true else True
 
+    count = 0
     for i, elem in enumerate(field):
         for j, el in enumerate(elem):
             if el == 0:
                 if choice((1, 0)):
                     field[i][j] = 1
+                    count += 1
                     continue
             if el == 9:
                 field[i][j] = 0
     field[x_exit][y_exit] = 2
+    if count < 90:
+        field = [
+            [1 for _ in range(15)],
+            [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1],
+            [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1],
+            [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+            [1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],
+            [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 2],
+            [1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1],
+            [1 for _ in range(14)]
+        ]
+        return field
     print("TRUE")
     return field
 
@@ -178,6 +194,24 @@ def hall_4_(hod=True):
                 mass.append((i * 100, j * 100))
     return field_, mass
 
+
+def beginning():
+    global field_, field, mass
+    field = FIELD_4
+    field_ = {}
+    for i, elem in enumerate(field):
+        for j, el in enumerate(elem):
+            if el != '.':
+                if el == 1:
+                    field_[(i * 100, j * 100)] = '1'
+                elif el == 2:
+                    field_[(i * 100, j * 100)] = '2'
+    mass = []
+    for i, elem in enumerate(field):
+        for j, el in enumerate(elem):
+            if el != 0:
+                mass.append((i * 100, j * 100))
+    return field_, mass
 
 # FIELD_2 = [
 #         [1 for _ in range(25)],

@@ -21,6 +21,14 @@ class Player:
         self.mouse = mouse
         self.sens = sens
         self.active = True
+        self.true = False
+        self.true2 = False
+        self.music_schag = pygame.mixer.Sound('Music/шаги.ogg')
+        self.music_schag.stop()
+
+        self.music_fon = pygame.mixer.Sound('Music/ф1.ogg')
+        self.music_fon.set_volume(0.5)
+        self.fon_ps = True
 
     def display(self, screen):  # отображение игрока
         pygame.draw.circle(screen, ((145, 230, 145)), (self.x, self.y), 8)
@@ -31,7 +39,11 @@ class Player:
         self.x, self.y = x, y
 
     def motion(self):  # движение игрока
+        self.true = False
         if self.active:
+            if self.fon_ps:
+                self.fon_ps = False
+                self.music_fon.play(-1)
             pygame.mouse.set_visible(self.mouse_vision)
             if self.mouse:
                 pygame.mouse.get_pos()
@@ -47,6 +59,7 @@ class Player:
                              (y + 40 * sin(self.angle - pi / 2)) // 100 * 100) not in self.mass:
                         self.x = x
                         self.y = y
+                        self.true = True
 
                 if pygame.key.get_pressed()[pygame.K_RIGHT]:  # вправо от луча
                     x = self.x + 4 * cos(self.angle + pi / 2)
@@ -56,6 +69,7 @@ class Player:
                              (y + 40 * sin(self.angle + pi / 2)) // 100 * 100) not in self.mass:
                         self.x = x
                         self.y = y
+                        self.true = True
 
                 if pygame.key.get_pressed()[pygame.K_UP] or pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
                     x = self.x + 4 * cos(self.angle)
@@ -65,6 +79,7 @@ class Player:
                             not in self.mass:
                         self.x = x
                         self.y = y
+                        self.true = True
 
                 if pygame.key.get_pressed()[pygame.K_UP] and pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
                     x = self.x + 5 * cos(self.angle)
@@ -74,6 +89,7 @@ class Player:
                             not in self.mass:
                         self.x = x
                         self.y = y
+                        self.true = True
 
                 if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.key.get_pressed()[pygame.K_s]:  # назад от луча
                     x = self.x + 4 * cos(self.angle + pi)
@@ -83,6 +99,7 @@ class Player:
                              (y + 40 * sin(self.angle + pi)) // 100 * 100) not in self.mass:
                         self.x = x
                         self.y = y
+                        self.true = True
 
                 if pygame.key.get_pressed()[pygame.K_a]:
                     self.angle -= 0.05
@@ -97,6 +114,7 @@ class Player:
                              (y + 40 * sin(self.angle - pi / 2)) // 100 * 100) not in self.mass:
                         self.x = x
                         self.y = y
+                        self.true = True
 
                 if pygame.key.get_pressed()[pygame.K_d]:  # вправо от луча
                     x = self.x + 4 * cos(self.angle + pi / 2)
@@ -106,6 +124,7 @@ class Player:
                              (y + 40 * sin(self.angle + pi / 2)) // 100 * 100) not in self.mass:
                         self.x = x
                         self.y = y
+                        self.true = True
 
                 if pygame.key.get_pressed()[pygame.K_UP] or pygame.key.get_pressed()[pygame.K_w]:  # вперёд от луча
                     x = self.x + 4 * cos(self.angle)
@@ -124,6 +143,7 @@ class Player:
                              (y + 50 * sin(self.angle)) // 100 * 100) not in self.mass:
                         self.x = x
                         self.y = y
+                        self.true = True
 
                 if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.key.get_pressed()[pygame.K_s]:  # назад от луча
                     x = self.x + 4 * cos(self.angle + pi)
@@ -133,6 +153,7 @@ class Player:
                              (y + 40 * sin(self.angle + pi)) // 100 * 100) not in self.mass:
                         self.x = x
                         self.y = y
+                        self.true = True
 
                 if pygame.key.get_pressed()[pygame.K_LEFT]:
                     self.angle -= 0.05
@@ -140,8 +161,17 @@ class Player:
                     self.angle += 0.05
 
             self.angle %= pi * 2
+            if self.true:
+                if not self.true2:
+                    self.music_schag.play(-1)
+                self.true2 = self.true
+            else:
+                self.music_schag.stop()
+                self.true2 = self.true
         else:
             pygame.mouse.set_visible(True)
+            self.fon_ps = True
+            self.music_fon.stop()
 
     def checking_the_progress(self, x, y):
         pass
@@ -217,7 +247,7 @@ def vision_new(x_pl, y_pl, player_angle, textures, field_):
     xm, ym = mapping(ox, oy)
     cur_angle = player_angle - fov / 2
     texture_v, texture_h = 1, 1
-    for ray in range(300):
+    for ray in range(350):
         sin_a = sin(cur_angle)
         cos_a = cos(cur_angle)
         sin_a = sin_a if sin_a else 0.000001

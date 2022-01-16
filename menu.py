@@ -243,8 +243,8 @@ class Menu:
                              (390, 500, 280, 80), 0)
 
             font = pygame.font.Font(None, 60)
-            text = font.render(f"Начать игру", True, self.color_text_play)
-            self.screen.blit(text, (406, 518))
+            text = font.render(f"Играть", True, self.color_text_play)
+            self.screen.blit(text, (440, 518))
 
             pygame.draw.rect(self.screen, self.color_batten_rules,
                              (35, 50, 200, 80), 0)

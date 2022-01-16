@@ -4,9 +4,15 @@ import pygame
 
 pygame.init()
 
-number_of_caught = 0
+number_of_caught = 4
 lizun_ = 0
 set_caught = set()
+
+music = pygame.mixer.Sound('Music/зел1.ogg')
+music.stop()
+
+music_minus = pygame.mixer.Sound('Music/кр1.ogg')
+music_minus.stop()
 
 
 def catch_a_lizun(x_player, y_player, sprite):
@@ -31,8 +37,10 @@ def catch_a_lizun(x_player, y_player, sprite):
             continue
         if view == 'rot':
             number_of_caught -= 1
+            music_minus.play()
         else:
             number_of_caught += 1
+            music.play()
 
 
 def ball(screen, hall):
