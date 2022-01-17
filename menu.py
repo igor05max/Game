@@ -50,11 +50,20 @@ class Menu:
         self.keyboard = True
         self.active_2 = True
 
+        self.ds = "достиж2.png"
+
+        self.ctr_rules = "52"
+        self.color_rules_continuation = (255, 0, 0)
+
+        self.color_rules_back = (255, 0, 0)
+
         self.color_batten_achievement = (200, 0, 0)
+        self.visualization_achievement = False
 
     def actions(self, event):
         if self.active:
-            if not self.visualization_rules and not self.visualization_settings:
+            if not self.visualization_rules and not self.visualization_settings and\
+                    not self.visualization_achievement:
                 if event.type == pygame.MOUSEMOTION:
                     if 1000 <= event.pos[0] <= 1170 and 680 <= event.pos[1] <= 760:
                         self.color_batten_exit = (80, 180, 80)
@@ -66,6 +75,16 @@ class Menu:
                         self.batten_exit = False
                 if event.type == pygame.MOUSEBUTTONDOWN and self.batten_exit:
                     sys.exit()
+
+                if event.type == pygame.MOUSEMOTION:
+                    if 900 <= event.pos[0] <= 1110 and 50 <= event.pos[1] <= 96:
+                        self.ds = "достиж.png"
+                    else:
+                        self.ds = "достиж2.png"
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if 900 <= event.pos[0] <= 1110 and 50 <= event.pos[1] <= 96:
+                        self.visualization_achievement = True
 
                 if event.type == pygame.MOUSEMOTION:
                     if 390 <= event.pos[0] <= 670 and 500 <= event.pos[1] <= 580:
@@ -105,7 +124,36 @@ class Menu:
                     self.visualization_settings = True
 
             elif self.visualization_rules:
-                pass
+                if event.type == pygame.MOUSEMOTION:
+                    if 100 <= event.pos[0] <= 250 and 725 <= event.pos[1] <= 765:
+                        self.color_rules_back = (126, 200, 100)
+                    else:
+                        self.color_rules_back = (250, 0, 0)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if 100 <= event.pos[0] <= 250 and 725 <= event.pos[1] <= 765:
+                        if self.ctr_rules == "52":
+                            self.visualization_rules = False
+                        else:
+                            self.ctr_rules = "52"
+                if event.type == pygame.MOUSEMOTION and self.ctr_rules == "52":
+                    if 280 <= event.pos[0] <= 600 and 725 <= event.pos[1] <= 765:
+                        self.color_rules_continuation = (126, 200, 100)
+                    else:
+                        self.color_rules_continuation = (250, 0, 0)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if 280 <= event.pos[0] <= 600 and 725 <= event.pos[1] <= 765:
+                        if self.ctr_rules == "52":
+                            self.ctr_rules = "53"
+            elif self.visualization_achievement:
+                if event.type == pygame.MOUSEMOTION:
+                    if 180 <= event.pos[0] <= 330 and 620 <= event.pos[1] <= 680:
+                        self.color_back_settings = (255, 255, 255)
+                        self.settings_back = True
+                    else:
+                        self.settings_back = False
+                        self.color_back_settings = (200, 10, 10)
+                if event.type == pygame.MOUSEBUTTONDOWN and self.settings_back:
+                    self.visualization_achievement = False
 
             else:
                 if event.type == pygame.MOUSEMOTION:
@@ -228,12 +276,17 @@ class Menu:
                             con.close()
 
     def visualization(self):
-        if not self.visualization_rules and not self.visualization_settings:
+        if not self.visualization_rules and not self.visualization_settings \
+                and not self.visualization_achievement:
             self.screen.fill((100, 100, 150))
+
+            achievement = pygame.image.load(f'Menu/{self.ds}').convert()
+
             screensaver = pygame.image.load(f'Menu/menu.png').convert()
             self.screen.blit(screensaver, (0, 0))
             pygame.draw.rect(self.screen, self.color_batten_exit,
                              (1000, 680, 170, 80), 0)
+            self.screen.blit(achievement, (900, 50))
 
             font = pygame.font.Font(None, 60)
             text = font.render(f"Выход", True, self.color_text_exit)
@@ -258,13 +311,43 @@ class Menu:
             text = font.render(f"Настройки", True, self.color_text_settings)
             self.screen.blit(text, (50, 270))
 
-            # pygame.draw.rect(self.screen, self.color_batten_achievement,
-            #                  (30, 500, 280, 80), 0)
-
         elif self.visualization_rules:
             self.screen.fill((100, 100, 150))
-            screensaver = pygame.image.load(f'Menu/110.png').convert()
+            screensaver = pygame.image.load(f'Menu/{self.ctr_rules}.png').convert()
             self.screen.blit(screensaver, (0, 0))
+
+            font = pygame.font.Font(None, 50)
+            text = font.render("Назад", True, self.color_rules_back)
+            self.screen.blit(text, (110, 730))
+
+            if self.ctr_rules == "52":
+                font = pygame.font.Font(None, 50)
+                text = font.render("Продолжение", True, self.color_rules_continuation)
+                self.screen.blit(text, (280, 730))
+
+        elif self.visualization_achievement:
+            screensaver = pygame.image.load(f'Menu/401.png').convert()
+            self.screen.blit(screensaver, (0, 0))
+
+            font = pygame.font.Font(None, 50)
+            text = font.render("Назад", True, self.color_back_settings)
+            self.screen.blit(text, (200, 630))
+
+            con = sqlite3.connect("game_base.db")
+            cur = con.cursor()
+            result = cur.execute(f"""SELECT count FROM password
+                           """).fetchall()
+            res = cur.execute(f"""SELECT count FROM password
+                                  WHERE id = {self.id_}
+                           """).fetchall()[0][0]
+            con.close()
+            font = pygame.font.Font(None, 50)
+            text = font.render(f"{max([int(i[0]) for i in result])}", True, (255, 0, 0))
+            self.screen.blit(text, (580, 310))
+
+            font = pygame.font.Font(None, 50)
+            text = font.render(f"{res}", True, (255, 0, 0))
+            self.screen.blit(text, (580, 550))
 
         else:
             self.screen.fill((100, 100, 150))

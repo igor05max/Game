@@ -1,7 +1,5 @@
 from math import sin, cos, pi, tan
 from field import *
-from sys import exit
-from pprint import pprint
 import pygame
 
 
@@ -30,6 +28,11 @@ class Player:
         self.music_fon.set_volume(0.5)
         self.fon_ps = True
 
+        self.bg = False
+        self.bg_2 = False
+        self.music_bg = pygame.mixer.Sound("Music/бег.ogg")
+        self.music_bg.stop()
+
     def display(self, screen):  # отображение игрока
         pygame.draw.circle(screen, ((145, 230, 145)), (self.x, self.y), 8)
         pygame.draw.line(screen, ((120, 150, 200)), (self.x, self.y), (self.x + 1250 * cos(self.angle),
@@ -40,6 +43,7 @@ class Player:
 
     def motion(self):  # движение игрока
         self.true = False
+        self.bg = False
         if self.active:
             if self.fon_ps:
                 self.fon_ps = False
@@ -89,7 +93,8 @@ class Player:
                             not in self.mass:
                         self.x = x
                         self.y = y
-                        self.true = True
+                        self.bg = True
+                        self.true = False
 
                 if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.key.get_pressed()[pygame.K_s]:  # назад от луча
                     x = self.x + 4 * cos(self.angle + pi)
@@ -143,7 +148,8 @@ class Player:
                              (y + 50 * sin(self.angle)) // 100 * 100) not in self.mass:
                         self.x = x
                         self.y = y
-                        self.true = True
+                        self.bg = True
+                        self.true = False
 
                 if pygame.key.get_pressed()[pygame.K_DOWN] or pygame.key.get_pressed()[pygame.K_s]:  # назад от луча
                     x = self.x + 4 * cos(self.angle + pi)
@@ -161,6 +167,8 @@ class Player:
                     self.angle += 0.05
 
             self.angle %= pi * 2
+            if self.bg:
+                self.true = False
             if self.true:
                 if not self.true2:
                     self.music_schag.play(-1)
@@ -168,13 +176,20 @@ class Player:
             else:
                 self.music_schag.stop()
                 self.true2 = self.true
+            if self.bg:
+                if not self.bg_2:
+                    self.music_bg.play(-1)
+                self.bg_2 = True
+            else:
+                self.music_bg.stop()
+                self.bg_2 = False
         else:
             pygame.mouse.set_visible(True)
             self.fon_ps = True
+            self.bg = False
+            self.bg_2 = False
+            self.music_bg.stop()
             self.music_fon.stop()
-
-    def checking_the_progress(self, x, y):
-        pass
 
     def verification_of_correctness(self, walls, x, y):
         for i in walls:
@@ -188,55 +203,6 @@ def mapping(a, b):
 
 
 wall_column = 0
-
-
-def vision(sc, x_pl, y_pl, player_angle, textures):
-    global wall_column
-    fov = pi / 3
-    ox, oy = x_pl, y_pl
-    xm, ym = mapping(ox, oy)
-    cur_angle = player_angle - fov / 2
-    texture_v, texture_h = 1, 1
-    for ray in range(300):
-        sin_a = sin(cur_angle)
-        cos_a = cos(cur_angle)
-        sin_a = sin_a if sin_a else 0.000001
-        cos_a = cos_a if cos_a else 0.000001
-
-        x, dx = (xm + 100, 1) if cos_a >= 0 else (xm, -1)
-        for i in range(0, 2500, 100):
-            depth_v = (x - ox) / cos_a
-            yv = oy + depth_v * sin_a
-            tile_v = mapping(x + dx, yv)
-            if tile_v in field_:
-                texture_v = field_[tile_v]
-                break
-            x += dx * 100
-
-        y, dy = (ym + 100, 1) if sin_a >= 0 else (ym, -1)
-        for i in range(0, 1500, 100):
-            depth_h = (y - oy) / sin_a
-            xh = ox + depth_h * cos_a
-            tile_h = mapping(xh, y + dy)
-            if tile_h in field_:
-                texture_h = field_[tile_h]
-                break
-            y += dy * 100
-
-        depth, offset, texture = (depth_v, yv, texture_v) if depth_v < depth_h else (depth_h, xh, texture_h)
-        offset = int(offset) % 100
-        depth *= cos(player_angle - cur_angle)
-        depth = max(depth, 0.00001)
-        proj_height = min(int((3 * DIST * 100) / depth), 5 * 800)
-
-        try:
-            wall_column = textures[texture].subsurface(offset * (1200 // 100), 0, 1200 // 100, 1200)
-            wall_column = pygame.transform.scale(wall_column, (1200 // 300, proj_height))
-            sc.blit(wall_column, (ray * (1200 // 300), 400 - proj_height // 2))
-        except Exception:
-            pass
-
-        cur_angle += fov / 300
 
 
 def vision_new(x_pl, y_pl, player_angle, textures, field_):
@@ -294,6 +260,5 @@ def vision_new(x_pl, y_pl, player_angle, textures, field_):
 def world(screen, world_objects):
     for obj in sorted(world_objects, key=lambda n: n[0], reverse=True):
         if obj[0]:
-            _, object, object_pos = obj
+            i, object, object_pos = obj
             screen.blit(object, object_pos)
-

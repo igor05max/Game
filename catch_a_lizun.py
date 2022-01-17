@@ -4,7 +4,7 @@ import pygame
 
 pygame.init()
 
-number_of_caught = 4
+number_of_caught = 0
 lizun_ = 0
 set_caught = set()
 

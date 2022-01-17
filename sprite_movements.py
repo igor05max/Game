@@ -1,5 +1,4 @@
 from sprite import SpriteObject
-from field import field
 
 
 def sprite_movements(x, y, sprite, sprite_type=('s', 0), cleaning=False, view='s'):
@@ -12,13 +11,6 @@ def sprite_movements(x, y, sprite, sprite_type=('s', 0), cleaning=False, view='s
     sprite.sprite_types_pos[sprite_type[0]] = x, y
 
 
-# cor_x, cor_y = 8, 12
-# cor_x2, cor_y2 = 11, 11
-
 cor_x, cor_y = 1, 5
 cor_x2, cor_y2 = 1, 1
 x, y = cor_x, cor_y
-
-
-def movements(sprite):
-    pass

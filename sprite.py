@@ -1,14 +1,13 @@
 import pygame
 import math
 from player import DIST
-from field import *
 
 
 class Sprites:
     def __init__(self):
         self.sprite_types = {
-            's': pygame.image.load('12.png').convert_alpha(),
-            'rot': pygame.image.load('17.1.png').convert_alpha()
+            's': pygame.image.load('lisun.png').convert_alpha(),
+            'rot': pygame.image.load('lisun_red.png').convert_alpha()
         }
         self.list_of_objects = [
             SpriteObject(self.sprite_types['s'], True, (1.5, 2.5), 0.8, 0.8)
@@ -48,6 +47,6 @@ class SpriteObject:
                 sprite = pygame.transform.scale(self.object, (proj_height, proj_height))
                 return (distance_to_sprite, sprite, sprite_pos)
             else:
-                return (False,)
+                return (False, )
         except Exception:
-            return (False,)
+            return (False, )

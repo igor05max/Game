@@ -26,7 +26,7 @@ t = False
 
 music_menu = pygame.mixer.Sound('Music/music.ogg')
 music_menu.play(-1)
-# music_menu.stop()
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -53,7 +53,7 @@ while running:
 con = sqlite3.connect("game_base.db")
 cur = con.cursor()
 
-manage = pygame_gui.UIManager((1200, 800))
+manage = pygame_gui.UIManager((1200, 800), 'Menu/thema_1.json')
 clock_ = pygame.time.Clock()
 
 exit_ = pygame_gui.elements.UIButton(
@@ -93,17 +93,17 @@ running_registration = False
 password_entrance = ""
 login_entrance = ""
 er = False
-textur = "300"
+textur = 0
 MYEVENTTYPE = pygame.USEREVENT + 1
 pygame.time.set_timer(MYEVENTTYPE, 1200)
-mass_texture = ["300", "301", "302"]
+mass_texture = ["303", "304", "305", "306"]
 while running_:
     time_delta = clock_.tick(60) / 1000.0
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         if event.type == MYEVENTTYPE:
-            textur = f'30{(int(textur[-1]) + 1) % 3}'
+            textur = (textur + 1) % 4
         if event.type == pygame.USEREVENT:
             if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == exit_:
@@ -131,7 +131,7 @@ while running_:
         manage.process_events(event)
 
     manage.update(time_delta)
-    k = pygame.image.load(f'Menu/{textur}.png').convert()
+    k = pygame.image.load(f'Menu/{mass_texture[textur]}.png').convert()
     screen.blit(k, (0, 0))
     screen.blit(text, (250, 255))
     screen.blit(login, (250, 155))
@@ -140,7 +140,7 @@ while running_:
     manage.draw_ui(screen)
     pygame.display.update()
 
-manage = pygame_gui.UIManager((1200, 800))
+manage = pygame_gui.UIManager((1200, 800), 'Menu/thema_2.json')
 exit_ = pygame_gui.elements.UIButton(
     relative_rect=pygame.Rect((520, 620), (150, 50)),
     text='Выход',
@@ -177,7 +177,7 @@ while running_registration:
         if event.type == pygame.QUIT:
             sys.exit()
         if event.type == MYEVENTTYPE:
-            textur = f'30{(int(textur[-1]) + 1) % 3}'
+            textur = (textur + 1) % 4
         if event.type == pygame.USEREVENT:
             if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == exit_:
@@ -213,7 +213,7 @@ while running_registration:
         manage.process_events(event)
 
     manage.update(time_delta)
-    k = pygame.image.load(f'Menu/{textur}.png').convert()
+    k = pygame.image.load(f'Menu/{mass_texture[textur]}.png').convert()
     screen.blit(k, (0, 0))
     screen.blit(text, (250, 255))
     screen.blit(login, (250, 155))
@@ -270,10 +270,9 @@ textures_ = {
     '1': ['Texture/5.png', 'Texture/15.png'],
     '2': ['Texture/4.png', 'Texture/14.png'],
     '3': ['Texture/6.png', 'Texture/16.png'],
-    '4': ['Texture/5.png', 'Texture/15.png']
+    '4': ['Texture/5.png', 'Texture/200.png']
 }
 
-# COLOR_ = land(textures_["1"][0])
 COLOR_ = (69, 71, 48)
 MYEVENTTYPE = pygame.USEREVENT + 1
 sprite_movements(8, 12, sprite)
@@ -295,7 +294,7 @@ color_batten_again = (125, 170, 200)
 batten_again_bool = False
 
 end = False
-color_batten_end = (125, 170, 200)
+color_batten_end = (100, 200, 100)
 batten_end_bool = False
 
 time_to_destroy_the_lizun = False
@@ -318,9 +317,12 @@ while running:
         if event.type == MYEVENTTYPE:
             true = True
 
-            # time_to_destroy_the_lizun = True
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             player.active = False
+            player.music_bg.stop()
+            player.music_schag.stop()
+            player.bg, player.bg_2 = False, False
+
         if event.type == pygame.MOUSEMOTION and not player.active and not menu.active:
             if 535 <= event.pos[0] <= 755 and 250 <= event.pos[1] <= 330:
                 color_batten_further = (175, 220, 250)
@@ -329,7 +331,7 @@ while running:
                 color_batten_further = (125, 170, 200)
                 batten_further_bool = False
 
-        if event.type == pygame.MOUSEBUTTONDOWN and batten_further_bool:  # and not menu.active:
+        if event.type == pygame.MOUSEBUTTONDOWN and batten_further_bool:
             player.active = True
 
         if event.type == pygame.MOUSEMOTION and not player.active and not menu.active:
@@ -388,13 +390,19 @@ while running:
                 '3': pygame.image.load('Texture/030.png').convert(),
                 '4': pygame.image.load('Texture/wall.jpg').convert()
             }
+            textures_ = {
+                '1': ['Texture/5.png', 'Texture/15.png'],
+                '2': ['Texture/4.png', 'Texture/14.png'],
+                '3': ['Texture/6.png', 'Texture/16.png'],
+                '4': ['Texture/5.png', 'Texture/200.png']
+            }
 
         if event.type == pygame.MOUSEMOTION and end:
             if 940 <= event.pos[0] <= 1160 and 710 <= event.pos[1] <= 790:
-                color_batten_end = (175, 220, 250)
+                color_batten_end = (200, 0, 0)
                 batten_end_bool = True
             else:
-                color_batten_end = (125, 170, 200)
+                color_batten_end = (100, 200, 100)
                 batten_end_bool = False
         if event.type == pygame.MOUSEBUTTONDOWN and batten_end_bool:
             con = sqlite3.connect("game_base.db")
@@ -447,10 +455,9 @@ while running:
                 '1': ['Texture/5.png', 'Texture/15.png'],
                 '2': ['Texture/4.png', 'Texture/14.png'],
                 '3': ['Texture/6.png', 'Texture/16.png'],
-                '4': ['Texture/5.png', 'Texture/15.png']
+                '4': ['Texture/5.png', 'Texture/200.png']
             }
 
-            # COLOR_ = land(textures_["1"][0])
             COLOR_ = (69, 71, 48)
             MYEVENTTYPE = pygame.USEREVENT + 1
             sprite_movements(8, 12, sprite)
@@ -472,7 +479,7 @@ while running:
             batten_again_bool = False
 
             end = False
-            color_batten_end = (125, 170, 200)
+            color_batten_end = (100, 200, 100)
             batten_end_bool = False
 
             time_to_destroy_the_lizun = False
@@ -488,6 +495,7 @@ while running:
 
             result_payer = True
             field_, player.mass = beginning()
+            number_of_caught_new()
 
         menu.actions(event)
 
@@ -520,7 +528,6 @@ while running:
         continue
 
     else:
-        # player.active = True
         menu_active = False
         music_menu.stop()
 
@@ -528,8 +535,7 @@ while running:
     screen.fill((0, 0, 0))
     sky = pygame.image.load(f'Sky/{sky_}.png').convert()
     screen.blit(sky, (0, 0))
-    # pygame.draw.rect(screen, (34, 139, 34), (0, 350, 1200, 600))
-    pygame.draw.rect(screen, COLOR_, (0, 350, 1200, 600))
+    pygame.draw.rect(screen, COLOR_, (0, 420, 1200, 380))
     walls = vision_new(player.x, player.y, player.angle, textures, field_)
     world(screen, walls + [obj.object_locate(player, walls) for obj in sprite.list_of_objects])
     catch_a_lizun(player.x, player.y, sprite)
@@ -637,31 +643,26 @@ while running:
                                 SELECT count FROM password
                                 WHERE login = '{login_ps}'
                                             ''').fetchall()[0][0]
-
-            if int(res) < int(number_of_caught):
+            if int(res) < int(number()):
                 cur.execute(f"""UPDATE password
-                                SET count = '{number_of_caught}'
+                                SET count = '{number()}'
                                 WHERE login = '{login_ps}'""")
                 con.commit()
             con.close()
-
         player.music_schag.stop()
         sky = pygame.image.load(f'Texture/205.png').convert()
         screen.blit(sky, (0, 0))
         metronome.stop()
         timer = 0
         start = 0
-        pygame.draw.rect(screen, color_batten_end,
-                         (940, 710, 220, 80), 0)
+        pygame.draw.rect(screen, color_batten_end, (940, 710, 220, 80), 0)
 
         font = pygame.font.Font(None, 60)
-        text = font.render(f"Далее", True, (10, 10, 10))
+        text = font.render(f"Далее", True, (50, 10, 10))
         screen.blit(text, (955, 720))
-        # menu.active_2 = True
-        # player.active = False
 
         font = pygame.font.Font(None, 100)
-        text = font.render(f"{number_of_caught}", True, (230, 230, 10))
+        text = font.render(f"{number()}", True, (230, 30, 10))
         screen.blit(text, (535, 735))
 
     pygame.display.flip()
